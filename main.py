@@ -9,19 +9,46 @@ import io
 import chardet
 import re
 from dotenv import load_dotenv
+import requests
 
 # ✅ 設定中文字型
 def setup_matplotlib_fonts():
-    """Configure matplotlib to properly display Chinese characters"""
-    # DisCloud 環境通常沒有中文字型，使用 DejaVu Sans 作為備選
-    plt.rcParams['font.sans-serif'] = ['DejaVu Sans', 'Arial', 'sans-serif']
-    plt.rcParams['axes.unicode_minus'] = False
-    plt.rcParams['figure.max_open_warning'] = 0
-    
-    print("✅ 字型設定完成（雲端環境）")
 
-# Call this function right after imports
+    # 定義您上傳的字型檔案路徑
+    # 假設您將 Huninn-Regular.ttf 放在機器人專案的根目錄
+    font_path = './Huninn-Regular.ttf' 
+    
+    # 檢查字型檔案是否存在
+    if os.path.exists(font_path):
+        try:
+            font_prop = fm.FontProperties(fname=font_path)
+            font_name = font_prop.get_name()
+            
+            fm.fontManager.addfont(font_path)
+
+            plt.rcParams['font.sans-serif'] = [font_name, 'DejaVu Sans', 'Arial', 'sans-serif']
+            
+            print(f"✅ 成功載入自訂中文字型：'{font_name}'，路徑：'{font_path}'")
+            print(f"當前 Matplotlib font.sans-serif 設定：{plt.rcParams['font.sans-serif']}")
+            
+        except Exception as e:
+            print(f"⚠️ 載入自訂字型失敗：{e}。請檢查字型檔案是否損壞或路徑是否正確。")
+            print("中文可能無法正常顯示（方塊字或亂碼）。")
+            plt.rcParams['font.sans-serif'] = ['DejaVu Sans', 'Arial', 'sans-serif']
+    else:
+        print(f"⚠️ 未找到自訂中文字型檔案：'{font_path}'。請確保檔案已上傳至專案根目錄。")
+        print("中文可能無法正常顯示（方塊字或亂碼）。")
+        plt.rcParams['font.sans-serif'] = ['DejaVu Sans', 'Arial', 'sans-serif']
+
+    plt.rcParams['axes.unicode_minus'] = False 
+
+    plt.rcParams['figure.max_open_warning'] = 0 
+    
+    print("✅ Matplotlib 字型設定完成")
+
+# 確保在所有 Matplotlib 相關操作之前調用此函數
 setup_matplotlib_fonts()
+
 
 # Discord bot 設定
 intents = discord.Intents.default()
@@ -920,3 +947,78 @@ if not token:
     raise ValueError("找不到 DISCORD_TOKEN 環境變數")
 
 bot.run(token)
+
+@tree.command(name="query", description="查詢多個 API 資料來源")
+async def query_command(interaction: discord.Interaction, keyword: str, api_source: str):
+    try:
+        await interaction.response.defer()
+
+        # 定義 API 資料來源
+        api_sources = {
+            "school": "https://data.taipei/api/v1/dataset/f37de02a-623d-4f72-bca9-7c7aad2f0e10?scope=resourceAquire",
+            "cases": "https://data.taipei/api/v1/dataset/5a5b36e0-f870-4b7f-8378-c91ac5f57941?scope=resourceAquire",
+            "friendly_stores": "https://data.taipei/api/v1/dataset/25b1ee0a-e4cd-4ed1-86ac-fd748ca9cf71?scope=resourceAquire"
+        }
+
+        if api_source not in api_sources:
+            await interaction.followup.send("❌ 無效的 API 資料來源，請選擇正確的來源。", ephemeral=True)
+            return
+
+        api_url = api_sources[api_source]
+        params = {"q": keyword, "limit": 10}
+
+        # 發送 API 請求
+        response = requests.get(api_url, params=params)
+        response.raise_for_status()
+        data = response.json().get("result", {}).get("results", [])
+
+        if not data:
+            await interaction.followup.send("❌ 查無相關資料，請嘗試其他關鍵字。", ephemeral=True)
+            return
+
+        # 格式化查詢結果
+        embed = discord.Embed(
+            title=f"🔍 查詢結果：{keyword}",
+            description=f"資料來源：{api_source}",
+            color=0x3498db
+        )
+
+        for item in data[:5]:  # 限制顯示前 5 筆資料
+            embed.add_field(
+                name=item.get("title", "無標題"),
+                value=item.get("description", "無描述"),
+                inline=False
+            )
+
+        await interaction.followup.send(embed=embed)
+
+    except requests.RequestException as e:
+        await interaction.followup.send(f"❌ API 請求失敗：{str(e)}", ephemeral=True)
+    except Exception as e:
+        await interaction.followup.send(f"❌ 發生錯誤：{str(e)}", ephemeral=True)
+
+@tree.command(name="data", description="上傳資料並通知管理者")
+async def data_command(interaction: discord.Interaction, file: discord.Attachment):
+    try:
+        await interaction.response.defer()
+
+        # 下載檔案內容
+        file_content = await file.read()
+        backup_path = f"backups/{file.filename}"
+
+        # 儲存備份
+        os.makedirs("backups", exist_ok=True)
+        with open(backup_path, "wb") as f:
+            f.write(file_content)
+
+        # 通知用戶
+        await interaction.followup.send(f"✅ 資料已成功上傳並備份：{file.filename}，管理者將審核後決定是否採用。")
+
+        # 通知管理者
+        admin_channel_id = 1234567890  # 替換為您的管理者頻道 ID
+        admin_channel = bot.get_channel(admin_channel_id)
+        if admin_channel:
+            await admin_channel.send(f"📁 收到新的資料上傳：{file.filename}，已備份至 {backup_path}", file=discord.File(backup_path))
+
+    except Exception as e:
+        await interaction.followup.send(f"❌ 上傳失敗：{str(e)}", ephemeral=True)
