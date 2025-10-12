@@ -6,7 +6,6 @@
 [![Python](https://img.shields.io/badge/python-v3.8+-blue.svg)](https://www.python.org/downloads/)
 [![Discord.py](https://img.shields.io/badge/discord.py-v2.3+-blue.svg)](https://discordpy.readthedocs.io/)
 [![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=flat&logo=docker&logoColor=white)](https://www.docker.com/)
-[![CI/CD](https://github.com/kaiyasi/Data_Analysis/workflows/CI%2FCD%20Pipeline/badge.svg)](https://github.com/kaiyasi/Data_Analysis/actions)
 
 ---
 
