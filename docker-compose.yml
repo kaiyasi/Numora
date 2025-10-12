@@ -1,0 +1,93 @@
+services:
+  bot:
+    build: .
+    container_name: crime-stats-bot
+    environment:
+      - DISCORD_TOKEN=${DISCORD_TOKEN}
+      - DATABASE_URL=postgresql://postgres:password@db:5432/crime_stats
+      - DEBUG=${DEBUG:-False}
+      - ADMIN_CHANNEL_ID=${ADMIN_CHANNEL_ID}
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+      - ./models:/app/models
+      - ./backups:/app/backups
+    depends_on:
+      - db
+      - redis
+    restart: unless-stopped
+    networks:
+      - crime-stats-network
+
+  web:
+    build: .
+    container_name: crime-stats-web
+    command: python -c "from src.utils.web_interface import WebInterface; from src.data.processor import DataProcessor; web = WebInterface(DataProcessor()); web.start_server(host='0.0.0.0', port=5000)"
+    ports:
+      - "5000:5000"
+    environment:
+      - DATABASE_URL=postgresql://postgres:password@db:5432/crime_stats
+      - DEBUG=${DEBUG:-False}
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+      - ./models:/app/models
+      - ./templates:/app/templates
+      - ./static:/app/static
+    depends_on:
+      - db
+      - redis
+    restart: unless-stopped
+    networks:
+      - crime-stats-network
+
+  db:
+    image: postgres:13
+    container_name: crime-stats-db
+    environment:
+      - POSTGRES_DB=crime_stats
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+    networks:
+      - crime-stats-network
+
+  redis:
+    image: redis:6-alpine
+    container_name: crime-stats-redis
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+    networks:
+      - crime-stats-network
+
+  nginx:
+    image: nginx:alpine
+    container_name: crime-stats-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+      - ./ssl:/etc/nginx/ssl
+    depends_on:
+      - web
+    restart: unless-stopped
+    networks:
+      - crime-stats-network
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  crime-stats-network:
+    driver: bridge
