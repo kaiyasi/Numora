@@ -155,9 +155,6 @@ CrimeStatsBot 是一個**企業級的犯罪案件統計分析平台**，提供�
 
 ### :cloud: 雲端部署
 
-#### Railway (推薦)
-[![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/new/template/kaiyasi/Data_Analysis)
-
 #### Render
 [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/kaiyasi/Data_Analysis)
 
