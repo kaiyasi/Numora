@@ -3,7 +3,7 @@
 ## 專案結構
 
 ```
-Data_Analysis/
+Numora/
 ├── src/                          # 源碼目錄
 │   ├── bot/                      # Discord 機器人模組
 │   │   ├── __init__.py

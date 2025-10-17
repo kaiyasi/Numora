@@ -116,8 +116,8 @@ jobs:
         context: .
         push: true
         tags: |
-          ${{ secrets.DOCKER_USERNAME }}/crime-stats-bot:latest
-          ${{ secrets.DOCKER_USERNAME }}/crime-stats-bot:${{ github.sha }}
+          ${{ secrets.DOCKER_USERNAME }}/numora:latest
+          ${{ secrets.DOCKER_USERNAME }}/numora:${{ github.sha }}
         cache-from: type=gha
         cache-to: type=gha,mode=max
 

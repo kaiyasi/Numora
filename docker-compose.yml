@@ -1,7 +1,7 @@
 services:
   bot:
     build: .
-    container_name: crime-stats-bot
+    container_name: numora-bot
     environment:
       - DISCORD_TOKEN=${DISCORD_TOKEN}
       - DATABASE_URL=postgresql://postgres:password@db:5432/crime_stats
@@ -17,11 +17,11 @@ services:
       - redis
     restart: unless-stopped
     networks:
-      - crime-stats-network
+      - numora-network
 
   web:
     build: .
-    container_name: crime-stats-web
+    container_name: numora-web
     command: python -c "from src.utils.web_interface import WebInterface; from src.data.processor import DataProcessor; web = WebInterface(DataProcessor()); web.start_server(host='0.0.0.0', port=5000)"
     ports:
       - "5000:5000"
@@ -39,11 +39,11 @@ services:
       - redis
     restart: unless-stopped
     networks:
-      - crime-stats-network
+      - numora-network
 
   db:
     image: postgres:13
-    container_name: crime-stats-db
+    container_name: numora-db
     environment:
       - POSTGRES_DB=crime_stats
       - POSTGRES_USER=postgres
@@ -55,11 +55,11 @@ services:
       - "5432:5432"
     restart: unless-stopped
     networks:
-      - crime-stats-network
+      - numora-network
 
   redis:
     image: redis:6-alpine
-    container_name: crime-stats-redis
+    container_name: numora-redis
     command: redis-server --appendonly yes
     volumes:
       - redis_data:/data
@@ -67,11 +67,11 @@ services:
       - "6379:6379"
     restart: unless-stopped
     networks:
-      - crime-stats-network
+      - numora-network
 
   nginx:
     image: nginx:alpine
-    container_name: crime-stats-nginx
+    container_name: numora-nginx
     ports:
       - "80:80"
       - "443:443"
@@ -82,12 +82,12 @@ services:
       - web
     restart: unless-stopped
     networks:
-      - crime-stats-network
+      - numora-network
 
 volumes:
   postgres_data:
   redis_data:
 
 networks:
-  crime-stats-network:
+  numora-network:
     driver: bridge

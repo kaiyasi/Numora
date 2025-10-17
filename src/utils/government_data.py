@@ -28,7 +28,7 @@ class GovernmentDataAPI:
         self.session = aiohttp.ClientSession(
             timeout=aiohttp.ClientTimeout(total=30),
             headers={
-                'User-Agent': 'CrimeStatsBot/2.0 (Serelix Studio)',
+                'User-Agent': 'Numora/2.0 (Serelix Studio)',
                 'Accept': 'application/json'
             }
         )
@@ -250,7 +250,7 @@ class DataAnalyzer:
         self.session = aiohttp.ClientSession(
             timeout=aiohttp.ClientTimeout(total=30),
             headers={
-                'User-Agent': 'CrimeStatsBot/2.0 (Serelix Studio)',
+                'User-Agent': 'Numora/2.0 (Serelix Studio)',
                 'Accept': 'application/json'
             }
         )

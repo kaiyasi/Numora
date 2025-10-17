@@ -1,6 +1,6 @@
-# CrimeStatsBot 文檔索引
+# Numora 文檔索引
 
-歡迎來到 CrimeStatsBot 的完整文檔中心！這裡包含了所有您需要了解的專案資訊。
+歡迎來到 Numora 的完整文檔中心！這裡包含了所有您需要了解的專案資訊。
 
 ## 📋 文檔目錄
 
@@ -38,9 +38,9 @@
 
 ## 🔗 **相關連結**
 
-- **GitHub 專案**: [https://github.com/kaiyasi/Data_Analysis](https://github.com/kaiyasi/Data_Analysis)
-- **問題回報**: [GitHub Issues](https://github.com/kaiyasi/Data_Analysis/issues)
-- **功能討論**: [GitHub Discussions](https://github.com/kaiyasi/Data_Analysis/discussions)
+- **GitHub 專案**: [https://github.com/kaiyasi/Numora](https://github.com/kaiyasi/Numora)
+- **問題回報**: [GitHub Issues](https://github.com/kaiyasi/Numora/issues)
+- **功能討論**: [GitHub Discussions](https://github.com/kaiyasi/Numora/discussions)
 - **官方社群**: [Serelix Studio Discord](https://discord.gg/eRfGKepusP)
 
 ## 📞 **支援聯繫**
@@ -49,7 +49,7 @@
 
 - **電子郵件**: [serelixstudio@gmail.com](mailto:serelixstudio@gmail.com)
 - **Discord 社群**: [SerelixStudio_Discord](https://discord.gg/eRfGKepusP)
-- **GitHub Issues**: [問題回報](https://github.com/kaiyasi/Data_Analysis/issues)
+- **GitHub Issues**: [問題回報](https://github.com/kaiyasi/Numora/issues)
 
 ---
 

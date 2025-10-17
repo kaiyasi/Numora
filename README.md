@@ -1,4 +1,4 @@
-# CrimeStatsBot - 智能犯罪案件統計分析平台
+# Numora - 智能犯罪案件統計分析平台
 
 > **由 Serelix Studio 開發的犯罪案件數據分析與視覺化系統，集成 Discord Bot 與 Web 儀表板**
 
@@ -11,7 +11,7 @@
 
 ## :dart: 專案特色
 
-CrimeStatsBot 是一個**企業級的犯罪案件統計分析平台**，提供深度數據洞察與 AI 預測功能。
+Numora 是一個**企業級的犯罪案件統計分析平台**，提供深度數據洞察與 AI 預測功能。
 
 ### :sparkles: 核心概念
 
@@ -104,11 +104,11 @@ CrimeStatsBot 是一個**企業級的犯罪案件統計分析平台**，提供�
 
 1. **複製專案並進入目錄**
    ```bash
-   git clone https://github.com/kaiyasi/Data_Analysis.git
-   cd Data_Analysis
+   git clone https://github.com/kaiyasi/Numora.git
+   cd Numora
    ```
 
-2. **設定環境變數**
+   2. **設定環境變數**
    ```bash
    cp env.example .env
    # 編輯 .env 檔案，填入 Discord Token
@@ -156,26 +156,26 @@ CrimeStatsBot 是一個**企業級的犯罪案件統計分析平台**，提供�
 ### :cloud: 雲端部署
 
 #### Render
-[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/kaiyasi/Data_Analysis)
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/kaiyasi/Numora)
 
 #### Docker Hub
 ```bash
-docker pull kaiyasi/crime-stats-bot:latest
-docker run -e DISCORD_TOKEN=your_token kaiyasi/crime-stats-bot
+docker pull kaiyasi/numora:latest
+docker run -e DISCORD_TOKEN=your_token kaiyasi/numora
 ```
 
----
+2. **安裝依賴套件**
 
 ## :file_folder: 資料格式支援
 
 ### :page_facing_up: 支援的檔案格式
-
+3. **設定環境變數**
 | 格式 | 編碼支援 | 大小限制 | 特殊功能 |
 |------|----------|----------|----------|
 | **CSV** | UTF-8, Big5, CP950, GBK | 50MB | 自動編碼檢測 |
 | **Excel** | .xlsx, .xls | 50MB | 多工作表支援 |
 | **JSON** | UTF-8 | 50MB | 巢狀結構解析 |
-
+4. **啟動應用程式**
 ### :label: 欄位映射規則
 
 | 標準欄位 | 可接受的欄位名稱 |
@@ -191,13 +191,12 @@ docker run -e DISCORD_TOKEN=your_token kaiyasi/crime-stats-bot
 ```
 ✅ 正確格式:
 臺北市中正區忠孝東路1段100號
-新竹縣竹北市成功路200號
-高雄市鳳山區建國路3段300號
+docker pull kaiyasi/numora:latest
+docker run -e DISCORD_TOKEN=your_token kaiyasi/numora
 
 ❌ 不建議格式:
-台北市中正區忠孝東路 (缺少詳細地址)
 中正區忠孝東路 (缺少市級資訊)
-```
+*Numora by Serelix Studio - 智能犯罪案件統計分析平台* :shield: *讓數據說話，讓分析更簡單*
 
 ---
 
@@ -220,7 +219,7 @@ docker run -e DISCORD_TOKEN=your_token kaiyasi/crime-stats-bot
 
 ### :file_folder: 目錄結構
 ```
-CrimeStatsBot/
+Numora/
 ├── 📁 src/                     # 源碼模組
 │   ├── 🤖 bot/                 # Discord 機器人
 │   ├── 📊 data/                # 資料處理
@@ -264,8 +263,8 @@ CrimeStatsBot/
 ## :telephone_receiver: 支援與聯繫
 
 ### :bug: 問題回報與建議
-* **:octocat: GitHub Issues**: [問題回報](https://github.com/kaiyasi/Data_Analysis/issues)
-* **:speech_balloon: GitHub Discussions**: [功能討論](https://github.com/kaiyasi/Data_Analysis/discussions)
+* **:octocat: GitHub Issues**: [問題回報](https://github.com/kaiyasi/Numora/issues)
+* **:speech_balloon: GitHub Discussions**: [功能討論](https://github.com/kaiyasi/Numora/discussions)
 * **:shield: 安全問題**: 請參考 [安全政策](docs/SECURITY.md) 私下回報
 
 ### :busts_in_silhouette: 社群交流
@@ -274,9 +273,9 @@ CrimeStatsBot/
 * **:e_mail: 官方 Gmail**: [serelixstudio@gmail.com](mailto:serelixstudio@gmail.com)
 
 ### :star: 專案連結
-* **:octocat: GitHub 專案**: [https://github.com/kaiyasi/Data_Analysis](https://github.com/kaiyasi/Data_Analysis)
-* **:globe_with_meridians: 專案網站**: [https://kaiyasi.github.io/Data_Analysis](https://kaiyasi.github.io/Data_Analysis)
-* **:book: 線上文檔**: [https://kaiyasi.github.io/Data_Analysis/docs](https://kaiyasi.github.io/Data_Analysis/docs)
+* **:octocat: GitHub 專案**: [https://github.com/kaiyasi/Numora](https://github.com/kaiyasi/Numora)
+* **:globe_with_meridians: 專案網站**: [https://kaiyasi.github.io/Numora](https://kaiyasi.github.io/Numora)
+* **:book: 線上文檔**: [https://kaiyasi.github.io/Numora/docs](https://kaiyasi.github.io/Numora/docs)
 
 ---
 
@@ -284,7 +283,7 @@ CrimeStatsBot/
 
 感謝所有為此專案做出貢獻的開發者！
 
-[![Contributors](https://contrib.rocks/image?repo=kaiyasi/Data_Analysis)](https://github.com/kaiyasi/Data_Analysis/graphs/contributors)
+[![Contributors](https://contrib.rocks/image?repo=kaiyasi/Numora)](https://github.com/kaiyasi/Numora/graphs/contributors)
 
 ### :handshake: 如何貢獻
 
@@ -313,12 +312,12 @@ CrimeStatsBot/
 
 ### :chart_with_upwards_trend: 專案統計
 
-![GitHub stars](https://img.shields.io/github/stars/kaiyasi/Data_Analysis?style=social)
-![GitHub forks](https://img.shields.io/github/forks/kaiyasi/Data_Analysis?style=social)
-![GitHub issues](https://img.shields.io/github/issues/kaiyasi/Data_Analysis)
-![GitHub pull requests](https://img.shields.io/github/issues-pr/kaiyasi/Data_Analysis)
+![GitHub stars](https://img.shields.io/github/stars/kaiyasi/Numora?style=social)
+![GitHub forks](https://img.shields.io/github/forks/kaiyasi/Numora?style=social)
+![GitHub issues](https://img.shields.io/github/issues/kaiyasi/Numora)
+![GitHub pull requests](https://img.shields.io/github/issues-pr/kaiyasi/Numora)
 
 ---
 
-*CrimeStatsBot by Serelix Studio - 智能犯罪案件統計分析平台* :shield: *讓數據說話，讓分析更簡單*
+*Numora by Serelix Studio - 智能犯罪案件統計分析平台* :shield: *讓數據說話，讓分析更簡單*
 
