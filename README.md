@@ -199,8 +199,6 @@ docker run -e DISCORD_TOKEN=your_token kaiyasi/numora
 ❌ 不建議格式:
 中正區忠孝東路 (缺少市級資訊)
 *Numora by Serelix Studio - 智能犯罪案件統計分析平台* :shield: *讓數據說話，讓分析更簡單*
-
----
 ```
 ## :books: 詳細文檔
 
