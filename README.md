@@ -218,7 +218,7 @@ docker run -e DISCORD_TOKEN=your_token kaiyasi/numora
 ## :building_construction: 專案架構
 
 ### :file_folder: 目錄結構
-
+```
 Numora/
 ├── 📁 src/                     # 源碼模組
 │   ├── 🤖 bot/                 # Discord 機器人
@@ -237,7 +237,7 @@ Numora/
 ├── 🐳 docker-compose.yml       # 容器編排
 ├── 🚀 bot.py                   # 主程式入口
 └── 📋 requirements.txt         # 依賴清單
-
+```
 ### :gear: 核心技術棧
 
 | 類別 | 技術選擇 | 版本要求 | 用途說明 |
