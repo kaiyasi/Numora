@@ -169,12 +169,14 @@ docker run -e DISCORD_TOKEN=your_token kaiyasi/numora
 ## :file_folder: 資料格式支援
 
 ### :page_facing_up: 支援的檔案格式
+
 3. **設定環境變數**
 | 格式 | 編碼支援 | 大小限制 | 特殊功能 |
 |------|----------|----------|----------|
 | **CSV** | UTF-8, Big5, CP950, GBK | 50MB | 自動編碼檢測 |
 | **Excel** | .xlsx, .xls | 50MB | 多工作表支援 |
 | **JSON** | UTF-8 | 50MB | 巢狀結構解析 |
+
 4. **啟動應用程式**
 ### :label: 欄位映射規則
 
@@ -199,7 +201,7 @@ docker run -e DISCORD_TOKEN=your_token kaiyasi/numora
 *Numora by Serelix Studio - 智能犯罪案件統計分析平台* :shield: *讓數據說話，讓分析更簡單*
 
 ---
-
+```
 ## :books: 詳細文檔
 
 ### :page_with_curl: 核心文檔
@@ -218,7 +220,7 @@ docker run -e DISCORD_TOKEN=your_token kaiyasi/numora
 ## :building_construction: 專案架構
 
 ### :file_folder: 目錄結構
-```
+
 Numora/
 ├── 📁 src/                     # 源碼模組
 │   ├── 🤖 bot/                 # Discord 機器人
@@ -237,7 +239,6 @@ Numora/
 ├── 🐳 docker-compose.yml       # 容器編排
 ├── 🚀 bot.py                   # 主程式入口
 └── 📋 requirements.txt         # 依賴清單
-```
 
 ### :gear: 核心技術棧
 
