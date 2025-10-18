@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- 主標題區 -->
+<div class="text-center my-5">
+    <h1 class="page-title">
+        <i class="fas fa-shield-alt"></i> Numora
+    </h1>
+    <p class="page-subtitle">智能犯罪案件統計分析平台 | 讓數據說話，讓分析更簡單</p>
+</div>
+
+<!-- 功能卡片區 -->
+<div class="row g-4 my-5">
+    <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
+        <div class="feature-card glass-card">
+            <div class="feature-icon">
+                <i class="fas fa-chart-line"></i>
+            </div>
+            <h3 class="feature-title">數據分析</h3>
+            <p class="feature-description">
+                深入分析犯罪案件趨勢與模式<br>
+                提供多維度的數據洞察
+            </p>
+            <a href="/dashboard" class="btn btn-gradient">
+                <i class="fas fa-arrow-right"></i> 查看儀表板
+            </a>
+        </div>
+    </div>
+
+    <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
+        <div class="feature-card glass-card">
+            <div class="feature-icon">
+                <i class="fas fa-map-marked-alt"></i>
+            </div>
+            <h3 class="feature-title">地區分析</h3>
+            <p class="feature-description">
+                各地區犯罪案件分布與熱點分析<br>
+                智能識別高風險區域
+            </p>
+            <a href="/analysis" class="btn btn-gradient">
+                <i class="fas fa-arrow-right"></i> 開始分析
+            </a>
+        </div>
+    </div>
+
+    <div class="col-md-4" data-aos="fade-up" data-aos-delay="300">
+        <div class="feature-card glass-card">
+            <div class="feature-icon">
+                <i class="fas fa-brain"></i>
+            </div>
+            <h3 class="feature-title">AI 預測</h3>
+            <p class="feature-description">
+                機器學習預測犯罪趨勢<br>
+                提前識別潛在風險
+            </p>
+            <a href="/prediction" class="btn btn-gradient">
+                <i class="fas fa-arrow-right"></i> 查看預測
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- 政府資料查詢區 -->
+<div class="row g-4 my-5">
+    <div class="col-12">
+        <div class="glass-card text-center">
+            <h2 class="mb-4">
+                <i class="fas fa-database"></i> 政府公開資料查詢
+            </h2>
+            <div class="row g-4 mt-4">
+                <div class="col-md-4">
+                    <div class="p-3">
+                        <i class="fas fa-bicycle fa-3x mb-3" style="color: #667eea;"></i>
+                        <h5>YouBike 即時資訊</h5>
+                        <p class="text-muted">台北/新北 YouBike 即時站況</p>
+                        <a href="/youbike" class="btn btn-sm btn-outline-primary">查看</a>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="p-3">
+                        <i class="fas fa-book fa-3x mb-3" style="color: #00f2fe;"></i>
+                        <h5>圖書館座位</h5>
+                        <p class="text-muted">台北市圖書館即時座位</p>
+                        <a href="/library" class="btn btn-sm btn-outline-primary">查看</a>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="p-3">
+                        <i class="fas fa-exclamation-triangle fa-3x mb-3" style="color: #f5576c;"></i>
+                        <h5>自行車竊盜統計</h5>
+                        <p class="text-muted">台北市自行車竊盜案件</p>
+                        <a href="/bike_theft" class="btn btn-sm btn-outline-primary">查看</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 特色展示區 -->
+<div class="row g-4 my-5">
+    <div class="col-12">
+        <div class="glass-card text-center">
+            <h2 class="mb-4">
+                <i class="fas fa-sparkles"></i> 平台特色
+            </h2>
+            <div class="row g-4 mt-4">
+                <div class="col-md-3">
+                    <div class="p-3">
+                        <i class="fas fa-robot fa-3x mb-3" style="color: #667eea;"></i>
+                        <h5>AI 驅動</h5>
+                        <p class="text-muted">機器學習預測模型</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="p-3">
+                        <i class="fas fa-chart-bar fa-3x mb-3" style="color: #f5576c;"></i>
+                        <h5>視覺化</h5>
+                        <p class="text-muted">互動式圖表分析</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="p-3">
+                        <i class="fas fa-database fa-3x mb-3" style="color: #00f2fe;"></i>
+                        <h5>多格式支援</h5>
+                        <p class="text-muted">CSV, Excel, JSON</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="p-3">
+                        <i class="fas fa-shield-alt fa-3x mb-3" style="color: #fee140;"></i>
+                        <h5>安全可靠</h5>
+                        <p class="text-muted">企業級數據安全</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- CTA 區域 -->
+<div class="row my-5">
+    <div class="col-12">
+        <div class="glass-card text-center p-5" style="background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);">
+            <h2 class="mb-3">準備好開始分析了嗎？</h2>
+            <p class="lead mb-4">立即體驗強大的數據分析功能</p>
+            <a href="/dashboard" class="btn btn-gradient btn-lg me-3">
+                <i class="fas fa-rocket"></i> 立即開始
+            </a>
+            <a href="https://github.com/kaiyasi/Numora" target="_blank" class="btn btn-outline-primary btn-lg">
+                <i class="fab fa-github"></i> View on GitHub
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

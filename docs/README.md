@@ -18,6 +18,11 @@
 - [SECURITY.md](SECURITY.md) - 安全政策與漏洞回報流程
 - [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) - 社群行為準則
 
+### 🎉 **版本發佈**
+- [RELEASE_v3.0.0.md](RELEASE_v3.0.0.md) - V3.0.0 完整發佈文檔
+- [RELEASE_NOTES_v3.0.0.md](RELEASE_NOTES_v3.0.0.md) - V3.0.0 發佈摘要
+- [MIGRATION_v2_to_v3.md](MIGRATION_v2_to_v3.md) - V2 到 V3 升級指南
+
 ## 🎯 **文檔使用指南**
 
 ### 對於新用戶
@@ -53,4 +58,4 @@
 
 ---
 
-*文檔由 Serelix Studio 維護 | 最後更新：2024年*
+*文檔由 Serelix Studio 維護 | 最後更新：2025-10-19 | 當前版本：V3.0.0*

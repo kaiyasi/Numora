@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block title %}YouBike 即時資訊 - Numora{% endblock %}
+
+{% block content %}
+<div class="text-center my-4">
+    <h1 class="page-title">
+        <i class="fas fa-bicycle"></i> YouBike 即時資訊
+    </h1>
+    <p class="page-subtitle">選擇城市與地區，瀏覽即時站點資訊</p>
+    <div class="row justify-content-center g-3 mt-3">
+        <div class="col-md-3">
+            <select id="citySelect" class="form-select">
+                <option value="taipei">台北市</option>
+                <option value="new_taipei">新北市</option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <select id="areaSelect" class="form-select">
+                <option value="__all__">全部地區</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <select id="pageSelect" class="form-select">
+                <option value="1">第 1 頁</option>
+            </select>
+        </div>
+    </div>
+</div>
+
+<div class="glass-card p-3">
+    <div id="youbikeStats" class="mb-2 text-muted"></div>
+    <ul id="stationList" class="list-group list-group-flush"></ul>
+    <div id="emptyHint" class="text-center text-muted py-3" style="display:none;">無資料</div>
+    <div class="mt-3 text-end">
+        <small class="text-muted">每頁 10 筆</small>
+    </div>
+</div>
+
+<script>
+async function fetchJSON(url) {
+  const r = await fetch(url);
+  if (!r.ok) throw new Error('HTTP ' + r.status);
+  return await r.json();
+}
+
+async function loadAreas() {
+  const city = document.getElementById('citySelect').value;
+  const data = await fetchJSON(`/api/youbike/areas?city=${city}`);
+  const sel = document.getElementById('areaSelect');
+  sel.innerHTML = '<option value="__all__">全部地區</option>' +
+    (data.areas || []).map(a => `<option value="${a}">${a}</option>`).join('');
+}
+
+async function loadStations(page=1) {
+  const city = document.getElementById('citySelect').value;
+  const area = document.getElementById('areaSelect').value;
+  const size = 10;
+  const data = await fetchJSON(`/api/youbike/stations?city=${city}&area=${encodeURIComponent(area)}&page=${page}&size=${size}`);
+  const list = document.getElementById('stationList');
+  const stats = document.getElementById('youbikeStats');
+  const empty = document.getElementById('emptyHint');
+  list.innerHTML = '';
+  if ((data.stations || []).length === 0) {
+    empty.style.display = '';
+    stats.textContent = '第 0–0 筆，共 0 筆';
+    return;
+  }
+  empty.style.display = 'none';
+  stats.textContent = `第 ${(data.page-1)*size+1}–${(data.page-1)*size + data.stations.length} 筆，共 ${data.total} 筆`;
+  for (const s of data.stations) {
+    const li = document.createElement('li');
+    li.className = 'list-group-item';
+    const area = s.area ? ` (${s.area})` : '';
+    li.textContent = `${s.name}${area}｜可借:${s.available_bikes} 可還:${s.available_docks}｜${s.address || ''}`;
+    list.appendChild(li);
+  }
+  // 重建頁碼
+  const pages = Math.max(1, Math.ceil(data.total / size));
+  const pageSelect = document.getElementById('pageSelect');
+  pageSelect.innerHTML = Array.from({length: Math.min(50, pages)}, (_, i) => {
+    const p = i+1; return `<option value="${p}" ${p==data.page?'selected':''}>第 ${p} 頁</option>`;
+  }).join('');
+}
+
+document.getElementById('citySelect').addEventListener('change', async () => {
+  await loadAreas();
+  await loadStations(1);
+});
+document.getElementById('areaSelect').addEventListener('change', async () => {
+  await loadStations(1);
+});
+document.getElementById('pageSelect').addEventListener('change', async (e) => {
+  await loadStations(parseInt(e.target.value, 10) || 1);
+});
+
+(async function init(){
+  await loadAreas();
+  await loadStations(1);
+})();
+</script>
+{% endblock %}

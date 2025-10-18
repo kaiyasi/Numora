@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}地區分析 - Numora{% endblock %}
+
+{% block content %}
+<div class="text-center my-4">
+    <h1 class="page-title">
+        <i class="fas fa-map-marked-alt"></i> 地區分析
+    </h1>
+    <p class="page-subtitle">深入分析各地區犯罪案件分布與趨勢</p>
+</div>
+
+<div class="row g-4">
+    <div class="col-12">
+        <div class="glass-card">
+            <h4 class="mb-4"><i class="fas fa-filter"></i> 篩選條件</h4>
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">選擇地區</label>
+                    <select class="form-select" id="areaSelect">
+                        <option value="all">全部地區</option>
+                        <option value="台北市">台北市</option>
+                        <option value="新北市">新北市</option>
+                        <option value="桃園市">桃園市</option>
+                        <option value="台中市">台中市</option>
+                        <option value="台南市">台南市</option>
+                        <option value="高雄市">高雄市</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">選擇年份</label>
+                    <select class="form-select" id="yearSelect">
+                        <option value="all">全部年份</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">&nbsp;</label>
+                    <button class="btn btn-gradient w-100" id="applyFilter">
+                        <i class="fas fa-search"></i> 開始分析
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mt-3">
+    <div class="col-lg-8">
+        <div class="glass-card chart-container">
+            <div class="chart-header">
+                <i class="fas fa-chart-area"></i> 地區案件趨勢
+            </div>
+            <div id="areaAnalysisChart"></div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="glass-card">
+            <h5 class="mb-3"><i class="fas fa-trophy"></i> 高風險地區排名</h5>
+            <div id="rankingList"></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('applyFilter').addEventListener('click', function() {
+        const area = document.getElementById('areaSelect').value;
+        const year = document.getElementById('yearSelect').value;
+
+        NumoraApp.showNotification('正在分析數據...', 'info');
+
+        // 載入圖表
+        NumoraApp.loadChart('area_distribution', 'areaAnalysisChart', { area, year });
+    });
+});
+</script>
+{% endblock %}

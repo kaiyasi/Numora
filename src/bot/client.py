@@ -37,11 +37,15 @@ class CrimeBotClient(commands.Bot):
     async def setup_hook(self):
         """機器人設定鉤子"""
         try:
+            # 載入提交功能 Cog
+            await self.load_extension('src.bot.submission_commands')
+            logger.info("提交功能模組載入完成")
+            
             # 同步指令樹
             await self.tree.sync()
             logger.info("指令樹同步完成")
         except Exception as e:
-            logger.error(f"同步指令樹時發生錯誤: {e}")
+            logger.error(f"設定機器人時發生錯誤: {e}")
     
     async def on_ready(self):
         """機器人就緒事件"""

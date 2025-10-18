@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+
+{% block title %}AI 預測 - Numora{% endblock %}
+
+{% block content %}
+<div class="text-center my-4">
+    <h1 class="page-title">
+        <i class="fas fa-brain"></i> AI 犯罪趨勢預測
+    </h1>
+    <p class="page-subtitle">使用機器學習預測未來犯罪趨勢</p>
+</div>
+
+<div class="row g-4">
+    <div class="col-12">
+        <div class="glass-card">
+            <h4 class="mb-4"><i class="fas fa-cogs"></i> 預測設定</h4>
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">選擇地區</label>
+                    <select class="form-select" id="predAreaSelect">
+                        <option value="台北市">台北市</option>
+                        <option value="新北市">新北市</option>
+                        <option value="桃園市">桃園市</option>
+                        <option value="台中市">台中市</option>
+                        <option value="台南市">台南市</option>
+                        <option value="高雄市">高雄市</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">預測年份</label>
+                    <select class="form-select" id="predYearSelect">
+                        <option value="2024">2024</option>
+                        <option value="2025">2025</option>
+                        <option value="2026">2026</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">&nbsp;</label>
+                    <button class="btn btn-gradient w-100" id="startPrediction">
+                        <i class="fas fa-magic"></i> 開始預測
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mt-3">
+    <div class="col-lg-8">
+        <div class="glass-card chart-container">
+            <div class="chart-header">
+                <i class="fas fa-chart-line"></i> 預測結果
+            </div>
+            <div id="predictionChart"></div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="glass-card">
+            <h5 class="mb-3"><i class="fas fa-info-circle"></i> 預測資訊</h5>
+            <div id="predictionInfo">
+                <p class="text-muted">請選擇地區和年份後開始預測</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mt-3">
+    <div class="col-12">
+        <div class="glass-card">
+            <h5 class="mb-3"><i class="fas fa-lightbulb"></i> AI 洞察</h5>
+            <div class="alert alert-info">
+                <i class="fas fa-robot"></i> 本系統使用隨機森林與線性回歸機器學習模型進行預測，基於歷史數據分析未來趨勢。預測結果僅供參考，實際情況可能因多種因素而有所不同。
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('startPrediction').addEventListener('click', async function() {
+        const area = document.getElementById('predAreaSelect').value;
+        const year = document.getElementById('predYearSelect').value;
+
+        NumoraApp.showLoading('predictionChart');
+        NumoraApp.showNotification('正在運行AI預測模型...', 'info');
+
+        try {
+            const data = await NumoraApp.fetchData(`/api/prediction?area=${area}&years=${year}`);
+
+            if (data.error) {
+                NumoraApp.showNotification('預測失敗: ' + data.error, 'danger');
+                return;
+            }
+
+            // 顯示預測結果
+            document.getElementById('predictionInfo').innerHTML = `
+                <div class="mb-3">
+                    <strong>預測地區:</strong> ${data.area}
+                </div>
+                <div class="mb-3">
+                    <strong>預測年份:</strong> ${year}
+                </div>
+                <div class="alert alert-success">
+                    <i class="fas fa-check-circle"></i> 預測完成！
+                </div>
+            `;
+
+            NumoraApp.showNotification('預測完成！', 'success');
+
+        } catch (error) {
+            NumoraApp.showNotification('預測失敗: ' + error.message, 'danger');
+        }
+    });
+});
+</script>
+{% endblock %}

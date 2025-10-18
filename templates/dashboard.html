@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+
+{% block title %}儀表板 - Numora{% endblock %}
+
+{% block content %}
+<!-- 頁面標題 -->
+<div class="text-center my-4">
+    <h1 class="page-title">
+        <i class="fas fa-tachometer-alt"></i> 統計儀表板
+    </h1>
+    <p class="page-subtitle">即時數據分析與視覺化</p>
+</div>
+
+{% if error %}
+<div class="alert alert-danger glass-card">
+    <i class="fas fa-exclamation-triangle"></i> {{ error }}
+</div>
+{% else %}
+
+<!-- 統計卡片區 -->
+<div class="row g-4 mb-5">
+    <div class="col-md-3">
+        <div class="stat-card primary">
+            <div class="stat-icon">
+                <i class="fas fa-file-alt"></i>
+            </div>
+            <div class="stat-value" data-value="{{ stats['總案件數'] }}">0</div>
+            <div class="stat-label">總案件數</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card secondary">
+            <div class="stat-icon">
+                <i class="fas fa-calendar-alt"></i>
+            </div>
+            <div class="stat-value">{{ stats['年份範圍'] }}</div>
+            <div class="stat-label">資料年份範圍</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card success">
+            <div class="stat-icon">
+                <i class="fas fa-map-marked-alt"></i>
+            </div>
+            <div class="stat-value" data-value="{{ stats['可用地區']|length }}">0</div>
+            <div class="stat-label">地區類型數</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card warning">
+            <div class="stat-icon">
+                <i class="fas fa-list"></i>
+            </div>
+            <div class="stat-value" data-value="{{ stats['案類統計']|length }}">0</div>
+            <div class="stat-label">案件類型數</div>
+        </div>
+    </div>
+</div>
+
+<!-- 圖表區域 -->
+<div class="row g-4 mb-4">
+    <div class="col-lg-6">
+        <div class="glass-card chart-container">
+            <div class="chart-header">
+                <i class="fas fa-chart-line"></i> 年度案件趨勢
+            </div>
+            <div id="yearlyTrendChart"></div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="glass-card chart-container">
+            <div class="chart-header">
+                <i class="fas fa-map"></i> 地區案件分布
+            </div>
+            <div id="areaDistributionChart"></div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-lg-6">
+        <div class="glass-card chart-container">
+            <div class="chart-header">
+                <i class="fas fa-chart-pie"></i> 案件類型分布
+            </div>
+            <div id="caseTypePieChart"></div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="glass-card chart-container">
+            <div class="chart-header">
+                <i class="fas fa-fire"></i> 時段熱力圖
+            </div>
+            <div id="timeHeatmapChart"></div>
+        </div>
+    </div>
+</div>
+
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // 載入圖表
+    if (typeof NumoraApp !== 'undefined') {
+        NumoraApp.loadChart('yearly_trend', 'yearlyTrendChart');
+        NumoraApp.loadChart('area_distribution', 'areaDistributionChart');
+        NumoraApp.loadChart('case_type_pie', 'caseTypePieChart');
+        NumoraApp.loadChart('time_heatmap', 'timeHeatmapChart');
+    }
+});
+</script>
+{% endblock %}

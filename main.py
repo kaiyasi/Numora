@@ -1,313 +1,14 @@
-import discord
-from discord.ext import commands
-from discord.ui import View, Select, Button
-import matplotlib.pyplot as plt
-import pandas as pd
-import matplotlib.font_manager as fm
-import os
-import io
-import chardet
-import re
-from dotenv import load_dotenv
-import requests
+"""
+舊版入口封裝：委派至新版 bot.py
+保留向後相容，避免重複邏輯。
+"""
 
-# ✅ 設定中文字型
-def setup_matplotlib_fonts():
-
-    # 定義您上傳的字型檔案路徑
-    # 假設您將 Huninn-Regular.ttf 放在機器人專案的根目錄
-    font_path = './Huninn-Regular.ttf' 
-    
-    # 檢查字型檔案是否存在
-    if os.path.exists(font_path):
-        try:
-            font_prop = fm.FontProperties(fname=font_path)
-            font_name = font_prop.get_name()
-            
-            fm.fontManager.addfont(font_path)
-
-            plt.rcParams['font.sans-serif'] = [font_name, 'DejaVu Sans', 'Arial', 'sans-serif']
-            
-            print(f"✅ 成功載入自訂中文字型：'{font_name}'，路徑：'{font_path}'")
-            print(f"當前 Matplotlib font.sans-serif 設定：{plt.rcParams['font.sans-serif']}")
-            
-        except Exception as e:
-            print(f"⚠️ 載入自訂字型失敗：{e}。請檢查字型檔案是否損壞或路徑是否正確。")
-            print("中文可能無法正常顯示（方塊字或亂碼）。")
-            plt.rcParams['font.sans-serif'] = ['DejaVu Sans', 'Arial', 'sans-serif']
-    else:
-        print(f"⚠️ 未找到自訂中文字型檔案：'{font_path}'。請確保檔案已上傳至專案根目錄。")
-        print("中文可能無法正常顯示（方塊字或亂碼）。")
-        plt.rcParams['font.sans-serif'] = ['DejaVu Sans', 'Arial', 'sans-serif']
-
-    plt.rcParams['axes.unicode_minus'] = False 
-
-    plt.rcParams['figure.max_open_warning'] = 0 
-    
-    print("✅ Matplotlib 字型設定完成")
-
-# 確保在所有 Matplotlib 相關操作之前調用此函數
-setup_matplotlib_fonts()
+from bot import main as run_bot
 
 
-# Discord bot 設定
-intents = discord.Intents.default()
-bot = commands.Bot(command_prefix='!', intents=intents)
-tree = bot.tree
+if __name__ == "__main__":
+    run_bot()
 
-# 全域變數儲存資料
-current_df = None
-
-# 📊 提取地區資訊的函式
-def extract_area_info(df):
-    """提取地區資訊並返回可用的地區列表"""
-    df_copy = df.copy()
-    
-    # 修正地區提取方式，優先匹配完整的市區格式，避免誤判
-    area_patterns = [
-        (r'(.+?市)(.+?區)', '市區'),  # 使用非貪婪匹配，台北市中山區
-        (r'(.+?縣)(.+?市)', '縣市'),  # 新竹縣竹北市
-        (r'(.+?縣)(.+?鄉)', '縣鄉'),  # 南投縣埔里鄉
-        (r'(.+?縣)(.+?鎮)', '縣鎮'),  # 新增鎮的支援
-    ]
-    
-    areas_found = {}
-    
-    for pattern, area_type in area_patterns:
-        matches = df_copy['地點'].str.extract(pattern, expand=False)
-        if area_type in ['市區', '縣市', '縣鄉', '縣鎮']:
-            # 組合型地區
-            if isinstance(matches, pd.DataFrame) and len(matches.columns) >= 2:
-                combined = matches.iloc[:, 0] + matches.iloc[:, 1]
-                valid_matches = combined.dropna().unique()  # 使用unique去重
-                if len(valid_matches) > 0:
-                    areas_found[area_type] = list(valid_matches)
-    
-    # 輸出提取到的地區資訊
-    if areas_found:
-        print("✅ 提取到的地區資訊:")
-        for area_type, areas in areas_found.items():
-            print(f"  {area_type}: {', '.join(areas[:10])}{'...' if len(areas) > 10 else ''}")
-        print(f"  總共 {sum(len(areas) for areas in areas_found.values())} 個地區")
-    
-    return areas_found
-
-def extract_district_by_area(df, selected_area):
-    """根據選擇的地區提取行政區，避免誤判里名中的市字"""
-    df_copy = df.copy()
-    
-    if selected_area == '全部地區':
-        # 使用最簡單且準確的方式提取
-        # 優先提取市區組合
-        city_district_pattern = r'(.+?市)(.+?區)'
-        matches = df_copy['地點'].str.extract(city_district_pattern, expand=False)
-        df_copy['區'] = matches[0] + matches[1]
-        
-        # 補充縣市組合
-        county_city_pattern = r'(.+?縣)(.+?市)'
-        county_matches = df_copy['地點'].str.extract(county_city_pattern, expand=False)
-        county_combined = county_matches[0] + county_matches[1]
-        
-        # 補充縣鄉鎮組合
-        county_township_pattern = r'(.+?縣)(.+?[鄉鎮])'
-        township_matches = df_copy['地點'].str.extract(county_township_pattern, expand=False)
-        township_combined = township_matches[0] + township_matches[1]
-        
-        # 按優先順序填充
-        df_copy['區'] = df_copy['區'].fillna(county_combined)
-        df_copy['區'] = df_copy['區'].fillna(township_combined)
-        
-    elif '區' in selected_area:
-        # 如果已經是完整的市區格式，篩選包含該地區的記錄
-        filtered_df = df_copy[df_copy['地點'].str.contains(selected_area, na=False)]
-        if not filtered_df.empty:
-            df_copy = filtered_df
-            df_copy['區'] = selected_area
-        else:
-            df_copy['區'] = None
-            
-    elif '市' in selected_area:
-        # 提取該市下的所有區
-        city_name = selected_area
-        pattern = f'{city_name}(.+?區)'
-        matches = df_copy['地點'].str.extract(pattern, expand=False)
-        df_copy['區'] = city_name + matches
-        
-    elif '縣' in selected_area:
-        # 提取該縣下的市/鄉/鎮
-        county_name = selected_area
-        patterns = [
-            f'{county_name}(.+?市)',
-            f'{county_name}(.+?鄉)', 
-            f'{county_name}(.+?鎮)'
-        ]
-        df_copy['區'] = None
-        for pattern in patterns:
-            matches = df_copy['地點'].str.extract(pattern, expand=False)
-            combined = county_name + matches
-            df_copy['區'] = df_copy['區'].fillna(combined)
-    
-    # 清理資料
-    df_copy = df_copy.dropna(subset=['區'])
-    df_copy = df_copy[df_copy['區'].str.len() > 0]
-    df_copy['區'] = df_copy['區'].str.strip()
-    df_copy['區'] = df_copy['區'].str.replace(r'\s+', '', regex=True)
-    
-    return df_copy
-
-# 📊 圖表產生函式 - 支援地區選擇
-def generate_area_year_plot(df, area, year):
-    try:
-        # 篩選年份
-        year_data = df[df['年份'] == year]
-        
-        if year_data.empty:
-            return None
-        
-        # 篩選地區
-        if area != '全部地區':
-            area_data = year_data[year_data['地點'].str.contains(area, na=False)]
-        else:
-            area_data = year_data
-        
-        if area_data.empty:
-            return None
-        
-        # 提取行政區
-        area_data = extract_district_by_area(area_data, area)
-        
-        if area_data.empty:
-            return None
-        
-        # 正確計算案件數
-        district_counts = area_data['區'].value_counts().sort_values(ascending=False)
-        
-        if district_counts.empty:
-            return None
-
-        # 確保計數是整數而非小數
-        district_counts = district_counts.astype(int)
-        
-        # 使用更大的圖表尺寸
-        fig, ax = plt.subplots(figsize=(16, 10))
-        
-        bars = ax.bar(range(len(district_counts)), district_counts.values, color='skyblue')
-        
-        # 設定標題和標籤
-        title = f'{area} - {year} 年各行政區案件數' if area != '全部地區' else f'{year} 年各地區案件數'
-        ax.set_title(title, fontsize=18, pad=25)
-        ax.set_xlabel('行政區', fontsize=14)
-        ax.set_ylabel('案件數', fontsize=14)
-        
-        # 設定 x 軸標籤
-        ax.set_xticks(range(len(district_counts)))
-        ax.set_xticklabels(district_counts.index, rotation=45, ha='right', fontsize=12)
-        
-        # 確保 y 軸顯示整數刻度
-        ax.yaxis.set_major_locator(plt.MaxNLocator(integer=True))
-        
-        # 移除上方的標籤（解決上排顯示 1 的問題）
-        ax.tick_params(top=False, labeltop=False)
-        
-        # 調整邊距
-        plt.subplots_adjust(bottom=0.25, left=0.1, right=0.95, top=0.9)
-        
-        # 在柱狀圖上顯示數值
-        for i, bar in enumerate(bars):
-            height = bar.get_height()
-            ax.text(bar.get_x() + bar.get_width()/2., height + 0.5,
-                    f'{int(height)}', ha='center', va='bottom', fontsize=10)
-        
-        plt.tight_layout()
-        filename = f"plot_{area}_{year}.png"
-        
-        # Add more robust file handling
-        try:
-            plt.savefig(filename, dpi=150, bbox_inches='tight', facecolor='white')
-            plt.close('all')  # Close all figures to prevent memory leaks
-            return filename
-        except Exception as e:
-            plt.close('all')
-            return None
-            
-    except Exception as e:
-        plt.close('all')  # Ensure we close any open figures
-        return None
-
-def generate_area_rank_plot(df, area, top_n=10):
-    try:
-        # 篩選地區
-        if area != '全部地區':
-            area_data = df[df['地點'].str.contains(area, na=False)]
-        else:
-            area_data = df
-        
-        if area_data.empty:
-            return None
-        
-        # 提取行政區
-        area_data = extract_district_by_area(area_data, area)
-        
-        if area_data.empty:
-            return None
-        
-        district_counts = area_data['區'].value_counts().head(top_n)
-        
-        # 使用更大的圖表尺寸
-        fig, ax = plt.subplots(figsize=(16, 10))
-        bars = ax.bar(range(len(district_counts)), district_counts.values, color='tomato')
-        
-        # 設定標題和標籤
-        title = f'{area} - 前{top_n}案件熱點行政區' if area != '全部地區' else f'前{top_n}案件熱點地區'
-        ax.set_title(title, fontsize=18, pad=25)
-        ax.set_xlabel('行政區', fontsize=14)
-        ax.set_ylabel('案件數', fontsize=14)
-        
-        # 設定 x 軸標籤
-        ax.set_xticks(range(len(district_counts)))
-        ax.set_xticklabels(district_counts.index, rotation=45, ha='right', fontsize=12)
-        
-        # 調整邊距
-        plt.subplots_adjust(bottom=0.25, left=0.1, right=0.95, top=0.9)
-        
-        # 在柱狀圖上顯示數值
-        for i, bar in enumerate(bars):
-            height = bar.get_height()
-            ax.text(bar.get_x() + bar.get_width()/2., height + 0.5,
-                    f'{int(height)}', ha='center', va='bottom', fontsize=10)
-        
-        plt.tight_layout()
-        filename = f"rank_{area}_top{top_n}.png"
-        
-        # Add more robust file handling
-        try:
-            plt.savefig(filename, dpi=150, bbox_inches='tight', facecolor='white')
-            plt.close('all')
-            return filename
-        except Exception as e:
-            plt.close('all')
-            return None
-            
-    except Exception as e:
-        plt.close('all')
-        return None
-
-def generate_yearly_plot(df, area):
-    """生成全年度的統計圖表"""
-    try:
-        # 篩選地區
-        if area != '全部地區':
-            area_data = df[df['地點'].str.contains(area, na=False)]
-        else:
-            area_data = df
-        
-        if area_data.empty:
-            print(f"⚠️ 警告: {area} 地區沒有資料")
-            return None
-        
-        # 提取行政區
-        area_data = extract_district_by_area(area_data, area)
-        
         if area_data.empty:
             print(f"⚠️ 警告: 提取行政區後沒有資料")
             return None
@@ -953,24 +654,121 @@ async def query_command(interaction: discord.Interaction, keyword: str, api_sour
     try:
         await interaction.response.defer()
 
-        # 定義 API 資料來源
+        # 定義資料來源
         api_sources = {
-            "school": "https://data.taipei/api/v1/dataset/f37de02a-623d-4f72-bca9-7c7aad2f0e10?scope=resourceAquire",
-            "cases": "https://data.taipei/api/v1/dataset/5a5b36e0-f870-4b7f-8378-c91ac5f57941?scope=resourceAquire",
-            "friendly_stores": "https://data.taipei/api/v1/dataset/25b1ee0a-e4cd-4ed1-86ac-fd748ca9cf71?scope=resourceAquire"
+            # 臺北市政府資料開放平臺 dataset UUIDs
+            "school": "f37de02a-623d-4f72-bca9-7c7aad2f0e10",
+            "cases": "5a5b36e0-f870-4b7f-8378-c91ac5f57941",
+            "friendly_stores": "25b1ee0a-e4cd-4ed1-86ac-fd748ca9cf71",
+            # YouBike 即時資料（直接 JSON 端點）
+            "youbike_taipei": "https://tcgbusfs.blob.core.windows.net/dotapp/youbike/v2/youbike_immediate.json",
+            "youbike_new_taipei": "https://data.ntpc.gov.tw/api/datasets/010e5b15-3823-4b20-b401-b1cf000550c5/json/?size=10000",
+            # YouBike 月租借使用量（CSV 下載連結）
+            "youbike_taipei_monthly": "https://data.taipei/api/dataset/d8cefb03-aba2-41ca-9996-d8774313cdc6/resource/8f690548-61bc-4bff-8baa-01d465eb672c/download",
+            # 臺北市自行車竊盜點位（CKAN dataset UUID，改用 CKAN 方式）
+            "bike_theft_taipei": "adf80a2b-b29d-4fca-888c-bcd26ae314e0",
         }
 
         if api_source not in api_sources:
             await interaction.followup.send("❌ 無效的 API 資料來源，請選擇正確的來源。", ephemeral=True)
             return
 
-        api_url = api_sources[api_source]
-        params = {"q": keyword, "limit": 10}
+        data = []
+        source_url = api_sources[api_source]
 
-        # 發送 API 請求
-        response = requests.get(api_url, params=params)
-        response.raise_for_status()
-        data = response.json().get("result", {}).get("results", [])
+        try:
+            if api_source in ("youbike_taipei", "youbike_new_taipei"):
+                # 直接 JSON 清單端點
+                resp = requests.get(source_url, timeout=20)
+                resp.raise_for_status()
+                arr = resp.json()
+                if isinstance(arr, dict) and 'data' in arr:
+                    arr = arr['data']
+                if isinstance(arr, list):
+                    kw = (keyword or '').strip().lower()
+                    def pick(rec: dict):
+                        # 名稱、地址、可借/可還的常見鍵名
+                        name = rec.get('sna') or rec.get('stationName') or rec.get('StationName') or rec.get('name')
+                        addr = rec.get('ar') or rec.get('address') or rec.get('StationAddress') or rec.get('Address')
+                        sarea = rec.get('sarea') or rec.get('area')
+                        bikes = rec.get('sbi') or rec.get('available_rent_bikes') or rec.get('AvailableBikeCount') or rec.get('available') or rec.get('bikeAvailable')
+                        docks = rec.get('bemp') or rec.get('available_return_bikes') or rec.get('AvailableSpaceCount') or rec.get('empty') or rec.get('dockAvailable')
+                        return name, addr, sarea, bikes, docks
+                    def matches(rec: dict):
+                        if not kw:
+                            return True
+                        try:
+                            return any(kw in str(v).lower() for v in rec.values())
+                        except Exception:
+                            return False
+                    for rec in arr:
+                        if not isinstance(rec, dict):
+                            continue
+                        if matches(rec):
+                            data.append(rec)
+                        if len(data) >= 10:
+                            break
+                else:
+                    data = []
+            elif api_source == "youbike_taipei_monthly":
+                # 下載 CSV 並解析
+                resp = requests.get(source_url, timeout=30)
+                resp.raise_for_status()
+                text = resp.content.decode('utf-8', errors='ignore')
+                import csv
+                rows = list(csv.DictReader(text.splitlines()))
+                kw = (keyword or '').strip().lower()
+                def matches_row(row: dict):
+                    if not kw:
+                        return True
+                    try:
+                        return any(kw in str(v).lower() for v in row.values())
+                    except Exception:
+                        return False
+                for row in rows:
+                    if matches_row(row):
+                        data.append(row)
+                    if len(data) >= 10:
+                        break
+            else:
+                # CKAN 路徑（dataset UUID → package_show → datastore_search）
+                dataset_id = source_url if len(source_url) == 36 else source_url
+                package_url = "https://data.taipei/api/3/action/package_show"
+                ds_url = "https://data.taipei/api/3/action/datastore_search"
+                pkg_resp = requests.get(package_url, params={"id": dataset_id}, timeout=15)
+                pkg_resp.raise_for_status()
+                pkg_json = pkg_resp.json()
+                resources = pkg_json.get("result", {}).get("resources", []) if pkg_json.get("success") else []
+                resource_id = None
+                for r in resources:
+                    if r.get("datastore_active"):
+                        resource_id = r.get("id")
+                        break
+                if not resource_id and resources:
+                    resource_id = resources[0].get("id")
+                if resource_id:
+                    ds_params = {"resource_id": resource_id, "q": keyword, "limit": 10}
+                    ds_resp = requests.get(ds_url, params=ds_params, timeout=20)
+                    ds_resp.raise_for_status()
+                    ds_json = ds_resp.json()
+                    if ds_json.get("success"):
+                        data = ds_json.get("result", {}).get("records", [])
+                    if not data:
+                        ds_params_fallback = {"resource_id": resource_id, "limit": 50}
+                        ds_resp2 = requests.get(ds_url, params=ds_params_fallback, timeout=20)
+                        ds_resp2.raise_for_status()
+                        ds_json2 = ds_resp2.json()
+                        if ds_json2.get("success"):
+                            records = ds_json2.get("result", {}).get("records", [])
+                            kw = str(keyword).strip().lower()
+                            def match_any(rec):
+                                try:
+                                    return any(kw in str(v).lower() for v in rec.values())
+                                except Exception:
+                                    return False
+                            data = [r for r in records if match_any(r)][:10]
+        except requests.RequestException:
+            data = []
 
         if not data:
             await interaction.followup.send("❌ 查無相關資料，請嘗試其他關鍵字。", ephemeral=True)
@@ -980,15 +778,49 @@ async def query_command(interaction: discord.Interaction, keyword: str, api_sour
         embed = discord.Embed(
             title=f"🔍 查詢結果：{keyword}",
             description=f"資料來源：{api_source}",
-            color=0x3498db
+            color=0x3498db,
         )
 
-        for item in data[:5]:  # 限制顯示前 5 筆資料
-            embed.add_field(
-                name=item.get("title", "無標題"),
-                value=item.get("description", "無描述"),
-                inline=False
-            )
+        # 嘗試從常見欄位擷取標題/描述，否則以前兩個欄位組合
+        def summarize_record(rec: dict) -> tuple:
+            # YouBike 資料優先顯示站名與地址、可借可還
+            if api_source in ("youbike_taipei", "youbike_new_taipei"):
+                name = rec.get('sna') or rec.get('stationName') or rec.get('StationName') or rec.get('name') or "YouBike 站點"
+                addr = rec.get('ar') or rec.get('address') or rec.get('StationAddress') or rec.get('Address') or "無地址"
+                sarea = rec.get('sarea') or rec.get('area')
+                bikes = rec.get('sbi') or rec.get('available_rent_bikes') or rec.get('AvailableBikeCount') or rec.get('available') or rec.get('bikeAvailable')
+                docks = rec.get('bemp') or rec.get('available_return_bikes') or rec.get('AvailableSpaceCount') or rec.get('empty') or rec.get('dockAvailable')
+                title = f"{name} ({sarea})" if sarea else str(name)
+                desc_parts = []
+                if bikes is not None: desc_parts.append(f"可借: {bikes}")
+                if docks is not None: desc_parts.append(f"可還: {docks}")
+                desc_parts.append(str(addr))
+                return title, " | ".join(map(str, desc_parts))
+            if api_source == "youbike_taipei_monthly":
+                # 嘗試常見欄位
+                station = rec.get('站點名稱') or rec.get('StationName') or rec.get('站名') or rec.get('sna') or rec.get('name') or 'YouBike 站點'
+                month = rec.get('月份') or rec.get('Month') or rec.get('month')
+                usage = rec.get('租借次數') or rec.get('租借量') or rec.get('usage') or rec.get('count')
+                title = f"{station} {month}" if month else str(station)
+                desc = f"租借次數: {usage}" if usage is not None else (rec.get('地址') or rec.get('地點') or rec.get('address') or '無描述')
+                return title, str(desc)
+
+            title = rec.get("title") or rec.get("name") or rec.get("學校名稱") or rec.get("店名") or rec.get("案件類型")
+            desc = rec.get("description") or rec.get("地址") or rec.get("地點") or rec.get("內容")
+            if not title:
+                # 任取前兩個欄位簡述
+                items = list(rec.items())
+                if items:
+                    title = f"{items[0][0]}: {items[0][1]}"
+            if not desc:
+                items = list(rec.items())
+                if len(items) > 1:
+                    desc = f"{items[1][0]}: {items[1][1]}"
+            return title or "無標題", (desc or "無描述")
+
+        for item in data[:5]:
+            t, d = summarize_record(item if isinstance(item, dict) else {})
+            embed.add_field(name=str(t)[:256], value=str(d)[:1024], inline=False)
 
         await interaction.followup.send(embed=embed)
 

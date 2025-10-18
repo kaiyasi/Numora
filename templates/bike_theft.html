@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block title %}自行車竊盜統計 - Numora{% endblock %}
+
+{% block content %}
+<div class="text-center my-4">
+    <h1 class="page-title">
+        <i class="fas fa-exclamation-triangle"></i> 自行車竊盜統計
+    </h1>
+    <p class="page-subtitle">台北市自行車竊盜案件資料</p>
+    <div class="row justify-content-center g-3 mt-3">
+        <div class="col-md-3">
+            <select id="pageSelect" class="form-select">
+                <option value="1">第 1 頁</option>
+            </select>
+        </div>
+    </div>
+</div>
+
+<div class="glass-card p-3">
+    <div id="theftStats" class="mb-2 text-muted"></div>
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>案類</th>
+                    <th>發生日期</th>
+                    <th>發生時段</th>
+                    <th>發生地點</th>
+                </tr>
+            </thead>
+            <tbody id="caseList">
+            </tbody>
+        </table>
+    </div>
+    <div id="emptyHint" class="text-center text-muted py-3" style="display:none;">無資料</div>
+    <div class="mt-3 text-end">
+        <small class="text-muted">每頁 10 筆</small>
+    </div>
+</div>
+
+<script>
+async function fetchJSON(url) {
+  const r = await fetch(url);
+  if (!r.ok) throw new Error('HTTP ' + r.status);
+  return await r.json();
+}
+
+async function loadCases(page=1) {
+  const size = 10;
+  const url = `/api/bike_theft/data?page=${page}&size=${size}`;
+  const data = await fetchJSON(url);
+  
+  const tbody = document.getElementById('caseList');
+  const stats = document.getElementById('theftStats');
+  const empty = document.getElementById('emptyHint');
+  
+  tbody.innerHTML = '';
+  
+  if ((data.cases || []).length === 0) {
+    empty.style.display = '';
+    stats.textContent = '第 0–0 筆，共 0 筆';
+    return;
+  }
+  
+  empty.style.display = 'none';
+  stats.textContent = `第 ${(data.page-1)*size+1}–${(data.page-1)*size + data.cases.length} 筆，共 ${data.total} 筆`;
+  
+  for (const c of data.cases) {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><span class="badge bg-danger">${c.case_type}</span></td>
+      <td>${c.date}</td>
+      <td>${c.time}時</td>
+      <td>${c.location}</td>
+    `;
+    tbody.appendChild(tr);
+  }
+  
+  const pages = Math.max(1, Math.ceil(data.total / size));
+  const pageSelect = document.getElementById('pageSelect');
+  pageSelect.innerHTML = Array.from({length: Math.min(50, pages)}, (_, i) => {
+    const p = i+1;
+    return `<option value="${p}" ${p==data.page?'selected':''}>第 ${p} 頁</option>`;
+  }).join('');
+}
+
+document.getElementById('pageSelect').addEventListener('change', (e) => {
+  loadCases(parseInt(e.target.value, 10) || 1);
+});
+
+(async function init(){
+  await loadCases(1);
+})();
+</script>
+{% endblock %}
+

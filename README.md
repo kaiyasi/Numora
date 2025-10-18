@@ -298,14 +298,14 @@ Numora/
 
 ## :memo: 版本資訊
 
-### :rocket: 最新版本: v2.0.0
+### :rocket: 最新版本: v3.0.0
 
 **主要更新：**
-- :brain: 新增 AI 預測功能
-- :globe_with_meridians: 全新 Web 儀表板
-- :bell: 即時通知系統
-- :test_tube: 完整測試框架
-- :whale: Docker 容器化支援
+- 🌐 政府開放資料整合（YouBike、圖書館、竊盜統計）
+- 📊 全新 Web 頁面（圖書館座位、自行車竊盜）
+- 🤖 資料提交系統（API 與 CSV 上傳）
+- 🎨 品牌視覺識別（Logo 與 Favicon）
+- ⚡ 效能優化與錯誤處理強化
 
 查看完整 [更新日誌](docs/CHANGELOG.md) 了解所有變更。
 

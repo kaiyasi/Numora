@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+
+{% block title %}圖書館座位資訊 - Numora{% endblock %}
+
+{% block content %}
+<div class="text-center my-4">
+    <h1 class="page-title">
+        <i class="fas fa-book"></i> 圖書館座位資訊
+    </h1>
+    <p class="page-subtitle">台北市立圖書館即時座位查詢</p>
+    <div class="row justify-content-center g-3 mt-3">
+        <div class="col-md-4">
+            <select id="branchSelect" class="form-select">
+                <option value="__all__">全部分館</option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <select id="pageSelect" class="form-select">
+                <option value="1">第 1 頁</option>
+            </select>
+        </div>
+    </div>
+</div>
+
+<div class="glass-card p-3">
+    <div id="libraryStats" class="mb-2 text-muted"></div>
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>分館</th>
+                    <th>樓層</th>
+                    <th>區域</th>
+                    <th class="text-end">可用座位</th>
+                    <th class="text-end">總座位數</th>
+                    <th class="text-end">使用率</th>
+                </tr>
+            </thead>
+            <tbody id="seatList">
+            </tbody>
+        </table>
+    </div>
+    <div id="emptyHint" class="text-center text-muted py-3" style="display:none;">無資料</div>
+    <div class="mt-3 text-end">
+        <small class="text-muted">每頁 10 筆</small>
+    </div>
+</div>
+
+<script>
+async function fetchJSON(url) {
+  const r = await fetch(url);
+  if (!r.ok) throw new Error('HTTP ' + r.status);
+  return await r.json();
+}
+
+async function loadBranches() {
+  const data = await fetchJSON('/api/library/branches');
+  const sel = document.getElementById('branchSelect');
+  sel.innerHTML = '<option value="__all__">全部分館</option>' +
+    (data.branches || []).map(b => `<option value="${b}">${b}</option>`).join('');
+}
+
+async function loadSeats(page=1) {
+  const branch = document.getElementById('branchSelect').value;
+  const size = 10;
+  const url = `/api/library/seats?page=${page}&size=${size}&branch=${encodeURIComponent(branch)}`;
+  const data = await fetchJSON(url);
+  
+  const tbody = document.getElementById('seatList');
+  const stats = document.getElementById('libraryStats');
+  const empty = document.getElementById('emptyHint');
+  
+  tbody.innerHTML = '';
+  
+  if ((data.seats || []).length === 0) {
+    empty.style.display = '';
+    stats.textContent = '第 0–0 筆，共 0 筆';
+    return;
+  }
+  
+  empty.style.display = 'none';
+  stats.textContent = `第 ${(data.page-1)*size+1}–${(data.page-1)*size + data.seats.length} 筆，共 ${data.total} 筆`;
+  
+  for (const seat of data.seats) {
+    const tr = document.createElement('tr');
+    const usage = seat.total > 0 ? ((seat.total - seat.free) / seat.total * 100).toFixed(0) : 0;
+    const usageClass = usage > 80 ? 'text-danger' : usage > 50 ? 'text-warning' : 'text-success';
+    
+    tr.innerHTML = `
+      <td>${seat.branch}</td>
+      <td>${seat.floor}</td>
+      <td>${seat.area}</td>
+      <td class="text-end"><strong class="${seat.free > 0 ? 'text-success' : 'text-danger'}">${seat.free}</strong></td>
+      <td class="text-end">${seat.total}</td>
+      <td class="text-end"><span class="${usageClass}">${usage}%</span></td>
+    `;
+    tbody.appendChild(tr);
+  }
+  
+  const pages = Math.max(1, Math.ceil(data.total / size));
+  const pageSelect = document.getElementById('pageSelect');
+  pageSelect.innerHTML = Array.from({length: Math.min(50, pages)}, (_, i) => {
+    const p = i+1;
+    return `<option value="${p}" ${p==data.page?'selected':''}>第 ${p} 頁</option>`;
+  }).join('');
+}
+
+document.getElementById('branchSelect').addEventListener('change', () => loadSeats(1));
+document.getElementById('pageSelect').addEventListener('change', (e) => {
+  loadSeats(parseInt(e.target.value, 10) || 1);
+});
+
+(async function init(){
+  await loadBranches();
+  await loadSeats(1);
+})();
+</script>
+{% endblock %}
