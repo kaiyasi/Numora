@@ -2,7 +2,7 @@
 
 > **由 Serelix Studio 開發的犯罪案件數據分析與視覺化系統，集成 Discord Bot 與 Web 儀表板**
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![License: KYL Open](https://img.shields.io/badge/License-KYL%20Open-blue.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/python-v3.8+-blue.svg)](https://www.python.org/downloads/)
 [![Discord.py](https://img.shields.io/badge/discord.py-v2.3+-blue.svg)](https://discordpy.readthedocs.io/)
 [![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=flat&logo=docker&logoColor=white)](https://www.docker.com/)
@@ -255,7 +255,7 @@ Numora/
 
 ## :page_facing_up: 授權條款
 
-此專案採用 **MIT 授權條款** - 詳見 [LICENSE](LICENSE) 檔案
+此專案採用 **KYL Open 授權條款** - 詳見 [LICENSE](LICENSE) 檔案
 
 ---
 
@@ -320,3 +320,6 @@ Numora/
 
 *Numora by Serelix Studio - 智能犯罪案件統計分析平台* :shield: *讓數據說話，讓分析更簡單*
 
+
+
+See [LICENSING.md](LICENSING.md) for license scope, third-party exceptions, and earlier-version notices.
